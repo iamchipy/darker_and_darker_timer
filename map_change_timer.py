@@ -106,7 +106,7 @@ def get_map_from_cycle(index:int,names:list[str]=["a", "b", "c"], target:int=0)-
     index_mod = index%cycle_size
     return (names[index_mod],index_mod)
 
-def progress_bar_string(percent_complete:float|int, width_to_fill:int=25, offset:int=0, fill_char:str="_") -> str:
+def progress_bar_string(percent_complete:float|int, width_to_fill:int=25, offset:int=0, fill_char:str="_", marker_char:str="|>") -> str:
     """Builds a display string of desired width with a marker along the portion of the string 
         that fits the percent_complete.
 
@@ -129,12 +129,12 @@ def progress_bar_string(percent_complete:float|int, width_to_fill:int=25, offset
     # determin how many percent each char represents
     percent_per_char = 100/width_to_fill
     # set left and right buffer sizes based 
-    left = round(percent_complete/percent_per_char)-1
+    left = round(percent_complete/percent_per_char)-len(marker_char)
     right = round((100-percent_complete)/percent_per_char)
 
     # return f"{" ": <left}|{" ": >right}"
     # Above can't work since we need to dynamically do it
-    return fill_char*left + "|" + fill_char*right
+    return fill_char*left + marker_char + fill_char*right
 
 def progress_calc(current:int|float=50,total:int|float=100) -> float:
     """Calculates the progress of something given the current value and total
