@@ -5,7 +5,7 @@ from os import system
 
 
 MAP_DURATION:int = 180
-MAP_NAMES = [" The Frost Mountain ", " The Goblin Caves ", "Ruins Castle (Crypt)"]
+MAP_NAMES = ["Ruins Castle (Crypt)", " The Frost Mountain ", " The Goblin Caves "]
 MAP_TARGET = 1
 
 def time_loop(loop_length_seconds:int, map_names:list[str], target_index:int) -> None:
@@ -13,6 +13,7 @@ def time_loop(loop_length_seconds:int, map_names:list[str], target_index:int) ->
     list_len = len(map_names) 
     display_len = 3+sum([len(x)+3 for x in map_names])
     full_cycle_length = loop_length_seconds*list_len
+    offset_value = (full_cycle_length - (loop_length_seconds*target_index))//full_cycle_length
     # Read in the start marker
     start_time = read_marker()
     # Report to user   
@@ -42,12 +43,13 @@ def time_loop(loop_length_seconds:int, map_names:list[str], target_index:int) ->
         map_name = map_name.upper() if maps_to_target == 0 else map_name
         
         # calc remaining info to show time till target/desired map
-        remaining_to_target = max(0,remaining_seconds+((maps_to_target-1)*loop_length_seconds))
+        remaining_to_target_old = max(0,remaining_seconds+((maps_to_target-1)*loop_length_seconds))
+        remaining_to_target = remaining_seconds+((maps_to_target)*loop_length_seconds)
 
         # format seconds into full timer format (to handle things larger that just a few sec)
         duration_of_window = pendulum.duration(seconds=remaining_seconds)
         duration_to_target = pendulum.duration(seconds=remaining_to_target)
-        progress_display = progress_bar_string(progress_calc(full_cycle_length-remaining_to_target,full_cycle_length),display_len, 33)
+        progress_display = progress_bar_string(progress_calc(full_cycle_length-remaining_to_target,full_cycle_length),display_len, offset_value)
 
         # update report to user
         print(" "*55, end="\r")
