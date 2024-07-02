@@ -3,25 +3,31 @@ import pendulum
 import pickle
 from os import system
 
-
 MAP_DURATION:int = 180
-MAP_NAMES = ["Ruins Castle (Crypt)", " The Frost Mountain ", " The Goblin Caves "]
+MAP_NAMES = ("Ruins Castle (Crypt)", 
+             " The Frost Mountain ", 
+             "  The Goblin Caves  ")
+
 MAP_TARGET = 1
+MARKER_CHAR = "A"
 
-def time_loop(loop_length_seconds:int, map_names:list[str], target_index:int) -> None:
+def time_loop(loop_length_seconds:int, map_names:list[str], target_index:int,marker_char:str) -> None:
 
+    # Store the length of the maps for multi reference speed
     list_len = len(map_names) 
-    display_len = 3+sum([len(x)+3 for x in map_names])
+    # Width of the display in char count
+    display_len = 4+sum([len(x)+3 for x in map_names])
     full_cycle_length = loop_length_seconds*list_len
     offset_value = (full_cycle_length - (loop_length_seconds*target_index))//full_cycle_length
     # Read in the start marker
     start_time = read_marker()
     # Report to user   
     print(f"Loading origin as >> {start_time}") 
-    print(f"Target:\t\t {target_index} - {map_names[target_index]}")    
-    print(f"Maps:\t\t {map_names}")
+    print(f"Target:\t\t {target_index+1} - {map_names[target_index+1]}")    
 
-    print("")
+    print(f"Solos:\t\t {progress_section_display(map_names, width_to_fill=display_len, marker_char="1")}")
+    print(f"Duos:\t\t {progress_section_display(map_names[2:]+map_names[0:2], width_to_fill=display_len, marker_char="2")}")
+    print(f"Trios:\t\t {progress_section_display(map_names[1:]+map_names[0:1], width_to_fill=display_len, marker_char="3")}")
 
     # Start loop
     while True:
@@ -49,7 +55,7 @@ def time_loop(loop_length_seconds:int, map_names:list[str], target_index:int) ->
         # format seconds into full timer format (to handle things larger that just a few sec)
         duration_of_window = pendulum.duration(seconds=remaining_seconds)
         duration_to_target = pendulum.duration(seconds=remaining_to_target)
-        progress_display = progress_bar_string(progress_calc(full_cycle_length-remaining_to_target,full_cycle_length),display_len, offset_value)
+        progress_display = progress_bar_string(progress_calc(full_cycle_length-remaining_to_target,full_cycle_length),display_len, offset_value, marker_char=marker_char)
 
         # update report to user
         print(" "*55, end="\r")
@@ -108,7 +114,7 @@ def get_map_from_cycle(index:int,names:list[str]=["a", "b", "c"], target:int=0)-
     index_mod = index%cycle_size
     return (names[index_mod],index_mod)
 
-def progress_bar_string(percent_complete:float|int, width_to_fill:int=25, offset:int=0, fill_char:str="_", marker_char:str="|>") -> str:
+def progress_bar_string(percent_complete:float|int, width_to_fill:int=25, offset:int=0, fill_char:str="_", marker_char:str="^") -> str:
     """Builds a display string of desired width with a marker along the portion of the string 
         that fits the percent_complete.
 
@@ -151,6 +157,20 @@ def progress_calc(current:int|float=50,total:int|float=100) -> float:
     fraction = current / total
     return min(1,max(0,fraction))
 
+def progress_section_display(map_names:list[str], width_to_fill:int=25, fill_char:str=" ",marker_char:str="|")->str:
+    display_string = marker_char
+    map_count = len(map_names)
+    width_per = width_to_fill//map_count
+
+    assert map_names  # for to make sure something was given
+    assert map_count > 0
+
+    for map in map_names:
+        padding = (width_per - len(map))//2
+        display_line = fill_char*padding + map + fill_char*width_to_fill
+        display_string += display_line[:width_per-1] + marker_char
+
+    return display_string
 
 def main() -> None:
     # write new time marker (comment it out after setting it the first time)
@@ -158,7 +178,7 @@ def main() -> None:
     system("cls")
     
     # Primary loop to track along with map timers
-    time_loop(MAP_DURATION,MAP_NAMES,MAP_TARGET)
+    time_loop(MAP_DURATION,MAP_NAMES,MAP_TARGET, MARKER_CHAR)
 
 if __name__ == "__main__":
     main()  
