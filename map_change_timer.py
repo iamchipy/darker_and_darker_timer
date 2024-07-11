@@ -5,8 +5,8 @@ from os import system
 
 MAP_DURATION:int = 180
 MAP_NAMES = ("Ruins Castle (Crypt)", 
-             " The Frost Mountain ", 
-             "  The Goblin Caves  ")
+             "The Frost Mountain", 
+             "The Goblin Caves")
 
 MAP_TARGET = 1
 MARKER_CHAR = "A"
